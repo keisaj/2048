@@ -6,6 +6,8 @@ from math import log
 from colour import Color
 
 # TODO add requirements.txt, implement optional arguments passing via terminal, optional, add menu/ start new game, set win num
+
+
 class Game2048:
 
     def __init__(self, screen_size: int = 800, board_size: int = 4, win_num: int = 2048) -> None:
@@ -53,8 +55,8 @@ class Game2048:
         """
         colors = {0: self.background_color}
 
-        red = Color("yellow")
-        gradient = list(red.range_to(
+        starting_colour = Color("yellow")
+        gradient = list(starting_colour.range_to(
             Color("red"), int(log(self.win_num, 2))+1))
 
         for idx, colour in enumerate(gradient):
@@ -75,7 +77,7 @@ class Game2048:
         """
         Check if winning number is allowed
         """
-        if self.win_num not in self.colors:
+        if self.win_num not in self.colors.keys():
             raise ValueError("Winning number is to high")
 
     def print_instruction(self) -> None:
@@ -325,7 +327,6 @@ class Game2048:
 
                     # get the current state and print it
                     status = self.get_current_state(self.board)
-                    # print(status)
 
                     # if game not ove then continue
                     # and add a new two
@@ -334,38 +335,42 @@ class Game2048:
 
                     # else break the loop
                     else:
+                        print(status)
                         self.game_over = True
                 if event.unicode == 's' or event.key == pygame.K_DOWN:
                     self.board, flag = self.move_down(self.board)
                     status = self.get_current_state(self.board)
-                    # print(status)
+
                     if(status == 'GAME NOT OVER'):
                         self.board = self.add_new_2(self.board)
                     else:
+                        print(status)
                         self.game_over = True
                 if event.unicode == 'a' or event.key == pygame.K_LEFT:
                     self.board, flag = self.move_left(self.board)
                     status = self.get_current_state(self.board)
-                    # print(status)
+
                     if(status == 'GAME NOT OVER'):
                         self.board = self.add_new_2(self.board)
                     else:
+                        print(status)
                         self.game_over = True
                 if event.unicode == 'd' or event.key == pygame.K_RIGHT:
                     self.board, flag = self.move_right(self.board)
                     status = self.get_current_state(self.board)
-                    # print(status)
+
                     if(status == 'GAME NOT OVER'):
                         self.board = self.add_new_2(self.board)
                     else:
+                        print(status)
                         self.game_over = True
                 if event.unicode == 'q':
-                    print("quitting......")
+                    print("quitting...")
                     pygame.quit()
                     sys.exit()
 
     def cap_frame_rate(self) -> None:
-        # cap framerate at 60fps if time since the last frame draw < 1/60th of a second, sleep for remaining time
+        # cap framerate at 30fps if time since the last frame draw < 1/60th of a second, sleep for remaining time
         now = pygame.time.get_ticks()
         milliseconds_since_last_update = now - self.last_update_completed
         time_to_sleep = self.desired_milliseconds_between_updates - \
