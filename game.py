@@ -5,7 +5,7 @@ import sys
 from math import log
 from colour import Color
 
-# TODO create git repo, add requirements txt and README.md, implement optional arguments passing via terminal
+# TODO add requirements.txt, implement optional arguments passing via terminal, optional, add menu/ start new game, set win num
 class Game2048:
 
     def __init__(self, screen_size: int = 800, board_size: int = 4, win_num: int = 2048) -> None:
@@ -30,6 +30,7 @@ class Game2048:
         self.desired_milliseconds_between_updates = (1.0 / self.fps) * 1000.0
 
         pygame.init()
+        pygame.display.set_caption('2048')
 
         self.screen = pygame.display.set_mode(
             (self.screen_size, self.screen_size))
@@ -304,7 +305,7 @@ class Game2048:
                                  (i*self.cell_size, j*self.cell_size))
 
                 if board[j][i] != 0:
-                    font = pygame.font.SysFont(None, 72)
+                    font = pygame.font.SysFont(None, int(self.cell_size/2))
                     img = font.render(
                         str(int(board[j][i])), True, self.line_color)
                     self.screen.blit(img, (i*self.cell_size+self.cell_size*0.5-int(img.get_size()[0]*0.5),
