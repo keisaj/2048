@@ -5,7 +5,7 @@ import sys
 from math import log
 from colour import Color
 
-# TODO add requirements.txt, implement optional arguments passing via terminal, optional, add menu/ start new game, set win num
+# TODO  optional, add menu/ start new game, set win num, add scoring and printing it
 
 
 class Game2048:
@@ -110,17 +110,16 @@ class Game2048:
         board[r][c] = 2
         return board
 
-    def get_current_state(self, board: np.array) -> str:
+    def is_game_over(self, board: np.array) -> bool:
         """
-        # function to get the current
-        # state of game
+        function to determine if game is over
         """
         # if any cell contains
         # 2048 we have won
         if self.win_num in board:  # TODO fixed winning number, it should be changable
-            return 'WON'  # TODO maybe change it to bool
+            return True  # TODO maybe change it to bool
         if 0 in board:
-            return 'GAME NOT OVER'
+            return False
 
         # or if no cell is empty now
         # but if after any move left, right,
@@ -130,18 +129,18 @@ class Game2048:
         for i in range(self.board_size - 1):
             for j in range(self.board_size - 1):
                 if(board[i][j] == board[i + 1][j] or board[i][j] == board[i][j + 1]):
-                    return 'GAME NOT OVER'
+                    return False
 
         for j in range(self.board_size - 1):
             if(board[self.board_size - 1][j] == board[self.board_size - 1][j + 1]):
-                return 'GAME NOT OVER'
+                return False
 
         for i in range(self.board_size - 1):
             if(board[i][self.board_size - 1] == board[i + 1][self.board_size - 1]):
-                return 'GAME NOT OVER'
+                return False
 
         # else we have lost the game
-        return 'LOST'
+        return True
 
     def compress(self, board: np.array) -> np.array:
         """
@@ -326,48 +325,40 @@ class Game2048:
                     self.board, flag = self.move_up(self.board)
 
                     # get the current state and print it
-                    status = self.get_current_state(self.board)
+                    status = self.is_game_over(self.board)
+                    self.manage_status(status)
 
-                    # if game not ove then continue
-                    # and add a new two
-                    if(status == 'GAME NOT OVER'):
-                        self.board = self.add_new_2(self.board)
-
-                    # else break the loop
-                    else:
-                        print(status)
-                        self.game_over = True
                 if event.unicode == 's' or event.key == pygame.K_DOWN:
                     self.board, flag = self.move_down(self.board)
-                    status = self.get_current_state(self.board)
+                    status = self.is_game_over(self.board)
+                    self.manage_status(status)
 
-                    if(status == 'GAME NOT OVER'):
-                        self.board = self.add_new_2(self.board)
-                    else:
-                        print(status)
-                        self.game_over = True
                 if event.unicode == 'a' or event.key == pygame.K_LEFT:
                     self.board, flag = self.move_left(self.board)
-                    status = self.get_current_state(self.board)
+                    status = self.is_game_over(self.board)
+                    self.manage_status(status)
 
-                    if(status == 'GAME NOT OVER'):
-                        self.board = self.add_new_2(self.board)
-                    else:
-                        print(status)
-                        self.game_over = True
                 if event.unicode == 'd' or event.key == pygame.K_RIGHT:
                     self.board, flag = self.move_right(self.board)
-                    status = self.get_current_state(self.board)
+                    status = self.is_game_over(self.board)
+                    self.manage_status(status)
 
-                    if(status == 'GAME NOT OVER'):
-                        self.board = self.add_new_2(self.board)
-                    else:
-                        print(status)
-                        self.game_over = True
                 if event.unicode == 'q':
                     print("quitting...")
                     pygame.quit()
                     sys.exit()
+
+    def manage_status(self, status: bool) -> None:
+        # if game not over then continue
+        # and add a new two
+        if status == False:
+            self.board = self.add_new_2(self.board)
+        elif status == True and self.win_num in self.board:
+            print("YOU WON")
+            self.game_over = True
+        else:
+            print("YOU LOST")
+            self.game_over = True
 
     def cap_frame_rate(self) -> None:
         # cap framerate at 30fps if time since the last frame draw < 1/60th of a second, sleep for remaining time
@@ -379,13 +370,14 @@ class Game2048:
             pygame.time.delay(int(time_to_sleep))
         self.last_update_completed = now
 
-    def run(self) -> None:
+    def run(self, display: bool = True) -> None:
         while True:
             if self.game_over:
                 return
             self.handle_events()
-            self.draw_board(self.board)
-            self.cap_frame_rate()
+            if display:
+                self.draw_board(self.board)
+                self.cap_frame_rate()
 
 
 if __name__ == '__main__':
